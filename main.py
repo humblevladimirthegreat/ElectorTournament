@@ -8,13 +8,13 @@ NUM_SIMULATIONS = 10000
 
 def generate_citizen():
     """
-    Generates a random number with uniform distribution between -100 and 100. This represents a citizen's ideology,
+    Generates a random number with uniform distribution between -50 and 50. This represents a citizen's ideology,
     with a positive number indicating more conservative, and negative indicating more liberal.
     We simulate a conservative-dominant district by adding AVERAGE_IDEOLOGY, so the average ideology is shifted.
     Note that the now-conservative citizens were taken from the liberal side, the percentage point gap between the
-    two parties is 2 * AVERAGE_IDEOLOGY
+    two parties becomes simply AVERAGE_IDEOLOGY
     """
-    return random.random() * 200 - 100 + AVERAGE_IDEOLOGY
+    return random.random() * 100 - 50 + AVERAGE_IDEOLOGY
 
 
 def pair_contestants(contestants) -> list[tuple]:
