@@ -10,9 +10,9 @@ def generate_citizen():
     """
     Generates a random number with uniform distribution between -50 and 50. This represents a citizen's ideology,
     with a positive number indicating more conservative, and negative indicating more liberal.
-    We simulate a conservative-dominant district by adding AVERAGE_IDEOLOGY, so the average ideology is shifted.
-    Note that the now-conservative citizens were taken from the liberal side, the percentage point gap between the
-    two parties becomes simply AVERAGE_IDEOLOGY
+    We simulate a conservative-dominant district by adding AVERAGE_IDEOLOGY, so the average ideology is shifted by that amount.
+    Note that the now-conservative citizens were taken from the liberal side, so the percentage point population gap 
+    between the two parties is 2 * AVERAGE_IDEOLOGY
     """
     return random.random() * 100 - 50 + AVERAGE_IDEOLOGY
 
@@ -30,14 +30,14 @@ def pair_contestants(contestants) -> list[tuple]:
 
 def elect_candidate(elector, choice1, choice2):
     """
-    The elector chooses the choice with the smaller distance from itself
+    The elector picks the choice with the smallest distance from itself
     """
     return min(choice1, choice2, key=lambda c: abs(elector - c))
 
 
 def run_round(contestants) -> list:
     """
-    Pair off the contestants and for each contest, elect the winner
+    Pair off the contestants and for each contest, elect the winner. Returns all the winners of this round.
     """
     winners = list()
     for (c1, c2) in pair_contestants(contestants):
@@ -47,6 +47,9 @@ def run_round(contestants) -> list:
 
 
 def run_tournament(contestants):
+    """
+    Run a single tournament with the given contestant. Returns the winner
+    """
     remaining_contestants = list(contestants)
     while len(remaining_contestants) > 1:
         remaining_contestants = run_round(remaining_contestants)
