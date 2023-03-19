@@ -1,21 +1,22 @@
 import random
 import statistics
+# import matplotlib.pyplot as plot  # uncomment to see histogram
 
-AVERAGE_IDEOLOGY = 10  # how conservative is the average citizen
+PERCENT_CONSERVATIVE = .6  # how many conservatives are there
 NUM_CONTESTANTS = 1024
-NUM_SIMULATIONS = 10000
-
+NUM_SIMULATIONS = 1000
+DISTRIBUTION_MEAN = 30
+STANDARD_DEVIATION = 10
 
 def generate_citizen():
     """
-    Generates a random number with uniform distribution between -50 and 50. This represents a citizen's ideology,
+    Generates a random number which represents a citizen's ideology,
     with a positive number indicating more conservative, and negative indicating more liberal.
-    We simulate a conservative-dominant district by adding AVERAGE_IDEOLOGY, so the average ideology is shifted by that amount.
-    Note that the now-conservative citizens were taken from the liberal side, so the percentage point population gap 
-    between the two parties is 2 * AVERAGE_IDEOLOGY
+    We simulate more partisanship by using a bimodal distribution.
+    We simulate a conservative-dominant district by using PERCENT_CONSERVATIVE
     """
-    return random.random() * 100 - 50 + AVERAGE_IDEOLOGY
-
+    mean = DISTRIBUTION_MEAN if random.random() < PERCENT_CONSERVATIVE else -DISTRIBUTION_MEAN
+    return random.normalvariate(mu=mean, sigma=STANDARD_DEVIATION)
 
 def pair_contestants(contestants) -> list[tuple]:
     """
@@ -27,13 +28,11 @@ def pair_contestants(contestants) -> list[tuple]:
         pairs.append((contestants[2*i], contestants[2*i+1]))
     return pairs
 
-
 def elect_candidate(elector, choice1, choice2):
     """
     The elector picks the choice with the smallest distance from itself
     """
     return min(choice1, choice2, key=lambda c: abs(elector - c))
-
 
 def run_round(contestants) -> list:
     """
@@ -45,7 +44,6 @@ def run_round(contestants) -> list:
         winners.append(elect_candidate(elector, c1, c2))
     return winners
 
-
 def run_tournament(contestants):
     """
     Run a single tournament with the given contestant. Returns the winner
@@ -56,13 +54,19 @@ def run_tournament(contestants):
     winner = remaining_contestants[0]
     return winner
 
-
 if __name__ == '__main__':
     winners = list()
     contestants = [generate_citizen() for _ in range(NUM_CONTESTANTS)]
+    print("The average contestant has ideology of", sum(contestants)/len(contestants))
+    contestants *= 4 # each candidate is entered 4 times to simulate multi-elimination
     for _ in range(NUM_SIMULATIONS):
         winners.append(run_tournament(contestants))
-    avg_winner = sum(winners)/len(winners)
-    print("Over", NUM_SIMULATIONS, "tournaments, the average winner is", avg_winner)
+    print("Over", NUM_SIMULATIONS, "tournaments, the average winner is", sum(winners)/len(winners))
     print("The standard deviation of the contestants are", statistics.pstdev(contestants))
     print("The standard deviation of the winners are", statistics.pstdev(winners))
+    print("The minority was elected", sum(map(lambda x: x < 0, winners))/len(winners) * 100, "%")
+    print("Solid members were elected", sum(map(lambda x: abs(x) > 30, winners))/len(winners) * 100, "%")
+    print("Staunch members were elected", sum(map(lambda x: abs(x) > 40, winners))/len(winners) * 100, "%")
+    # uncomment to save histograph
+    # plot.hist(winners)
+    # plot.savefig('tournament_lottery_voting.png')
